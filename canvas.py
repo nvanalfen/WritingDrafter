@@ -71,7 +71,9 @@ class DraggableTextItem(QGraphicsRectItem):
     def adjustRectSize(self):
         # Set the rectangle size to fit the text, with some padding
         padding = 10
-        rect = self.textItem.boundingRect().adjusted(-padding / 2, -padding / 2, padding / 2, padding / 2)
+        width = max( self.textItem.boundingRect().width()+(padding/2), self.rect().width() )
+        height = max( self.textItem.boundingRect().height()+(padding/2), self.rect().height() )
+        rect = QRectF(0, 0, width, height)
         self.setRect(rect)
 
     def mousePressEvent(self, event):
