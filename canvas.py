@@ -9,10 +9,12 @@ from PyQt5.QtGui import QPen, QColor, QBrush, QFontMetrics
 class EditableTextItem(QGraphicsTextItem):
     def __init__(self, text, parent=None):
         super(EditableTextItem, self).__init__(text, parent)
+        self.parent = parent
 
     def focusOutEvent(self, event):
         # When focus is lost, disable text editing
         self.setTextInteractionFlags(Qt.NoTextInteraction)
+        self.parent.adjustRectSize()
         super(EditableTextItem, self).focusOutEvent(event)
 
 class DraggableTextItem(QGraphicsRectItem):
@@ -20,11 +22,18 @@ class DraggableTextItem(QGraphicsRectItem):
         super(DraggableTextItem, self).__init__(parent)
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
 
+        # Create a background rect item as a child of this item
+        #self.backgroundRect = QGraphicsRectItem(self)
+        #self.backgroundRect.setBrush(QBrush(QColor(255, 255, 255, 255)))  # Opaque white background
+        #self.backgroundRect.setZValue(-1)  # Set the background behind the text
+        #self.backgroundRect.setPen(Qt.NoPen)  # No border
+
         # Create a text item as a child of the rectangle
         self.textItem = EditableTextItem("Edit me", self)
         self.textItem.setTextInteractionFlags(Qt.NoTextInteraction)
         self.textItem.setPos(0, 0)
         self.textItem.setTextWidth(self.rect().width())  # Set initial text width for wrapping
+        self.textItem.setZValue(1)  # Set the text in front of the background
 
         # Adjust the size of the rectangle to fit the text item
         self.adjustRectSize()
@@ -33,6 +42,7 @@ class DraggableTextItem(QGraphicsRectItem):
         super(DraggableTextItem, self).paint(painter, option, widget)
         if self.isSelected():
             painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
+            painter.drawRect(self.rect())  # Highlight the selection with a red outline
         else:
             painter.setPen(QPen(Qt.black, 1, Qt.SolidLine))
         painter.drawRect(self.rect())
@@ -84,6 +94,7 @@ class DraggableTextItem(QGraphicsRectItem):
         if self.isResizing:
             diff = event.pos() - self.dragStartPos
             newRect = self.dragStartRect.adjusted(0, 0, diff.x(), diff.y())
+            #self.backgroundRect.setRect(newRect.normalized())  # Update background size during resize
             self.setRect(newRect.normalized())
             self.textItem.setTextWidth(self.rect().width())
         else:
