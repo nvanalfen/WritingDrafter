@@ -3,7 +3,7 @@ import json
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QTabWidget, \
                             QWidget, QVBoxLayout, QPushButton, QGraphicsView, \
                             QGraphicsScene, QGraphicsItem, QLabel, QInputDialog, \
-                            QGraphicsRectItem, QGraphicsTextItem)
+                            QGraphicsRectItem, QGraphicsTextItem, QHBoxLayout)
 from PyQt5.QtCore import Qt, QRectF, QPointF
 from PyQt5.QtGui import QPen, QColor, QBrush, QFontMetrics
 
@@ -121,6 +121,8 @@ class CanvasTab(QWidget):
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout(self)
+        addDeleteLayout = QHBoxLayout()
+        saveLoadLayout = QHBoxLayout()
         
         self.scene = QGraphicsScene()
         self.view = QGraphicsView(self.scene)
@@ -136,10 +138,12 @@ class CanvasTab(QWidget):
         self.loadButton = QPushButton("Load Canvas")
         self.loadButton.clicked.connect(lambda: self.load_canvas(self.scene, 'canvas.json'))
 
-        layout.addWidget(self.addButton)
-        layout.addWidget(self.deleteButton)
-        layout.addWidget(self.saveButton)
-        layout.addWidget(self.loadButton)
+        addDeleteLayout.addWidget(self.addButton)
+        addDeleteLayout.addWidget(self.deleteButton)
+        saveLoadLayout.addWidget(self.saveButton)
+        saveLoadLayout.addWidget(self.loadButton)
+        layout.addLayout(addDeleteLayout)
+        layout.addLayout(saveLoadLayout)
         layout.addWidget(self.view)
 
     def addTextBox(self):
