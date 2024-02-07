@@ -3,7 +3,8 @@ import json
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QTabWidget, \
                             QWidget, QVBoxLayout, QPushButton, QGraphicsView, \
                             QGraphicsScene, QGraphicsItem, QLabel, QInputDialog, \
-                            QGraphicsRectItem, QGraphicsTextItem, QHBoxLayout)
+                            QGraphicsRectItem, QGraphicsTextItem, QHBoxLayout, \
+                                QSizePolicy)
 from PyQt5.QtCore import Qt, QRectF, QPointF
 from PyQt5.QtGui import QPen, QColor, QBrush, QFontMetrics
 
@@ -120,14 +121,15 @@ class DraggableTextItem(QGraphicsRectItem):
 class CanvasTab(QWidget):
     def __init__(self):
         super().__init__()
-        layout = QVBoxLayout(self)
+        self.layout = QVBoxLayout(self)
         addDeleteLayout = QHBoxLayout()
         saveLoadLayout = QHBoxLayout()
         
         self.scene = QGraphicsScene()
         self.view = QGraphicsView(self.scene)
-        self.view.setFixedSize(640, 480)
+        #self.view.setFixedSize(640, 480)
         self.scene.setSceneRect(0, 0, 640, 480)
+        self.view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # Allow view to expand
 
         self.addButton = QPushButton("Add Text Box")
         self.addButton.clicked.connect(self.addTextBox)
@@ -142,9 +144,11 @@ class CanvasTab(QWidget):
         addDeleteLayout.addWidget(self.deleteButton)
         saveLoadLayout.addWidget(self.saveButton)
         saveLoadLayout.addWidget(self.loadButton)
-        layout.addLayout(addDeleteLayout)
-        layout.addLayout(saveLoadLayout)
-        layout.addWidget(self.view)
+        self.layout.addLayout(addDeleteLayout)
+        self.layout.addLayout(saveLoadLayout)
+        self.layout.addWidget(self.view, 1)
+
+        self.setLayout(self.layout)
 
     def addTextBox(self):
         item = DraggableTextItem()
