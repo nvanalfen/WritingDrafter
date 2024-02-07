@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QTabWidget, \
                                 QSizePolicy)
 from PyQt5.QtCore import Qt, QRectF, QPointF
 from PyQt5.QtGui import QPen, QColor, QBrush, QFontMetrics
+from arrow import ArrowItem
 
 class EditableTextItem(QGraphicsTextItem):
     def __init__(self, text, parent=None):
@@ -140,12 +141,16 @@ class CanvasTab(QWidget):
         self.loadButton = QPushButton("Load Canvas")
         self.loadButton.clicked.connect(lambda: self.load_canvas(self.scene, 'canvas.json'))
 
+        self.arrowButton = QPushButton("Connect Selected Boxes")
+        self.arrowButton.clicked.connect(lambda: self.connectSelectedBoxes(self.scene))
+
         addDeleteLayout.addWidget(self.addButton)
         addDeleteLayout.addWidget(self.deleteButton)
         saveLoadLayout.addWidget(self.saveButton)
         saveLoadLayout.addWidget(self.loadButton)
         self.layout.addLayout(addDeleteLayout)
         self.layout.addLayout(saveLoadLayout)
+        self.layout.addWidget(self.arrowButton)
         self.layout.addWidget(self.view, 1)
 
         self.setLayout(self.layout)
@@ -157,6 +162,12 @@ class CanvasTab(QWidget):
     def deleteSelectedTextBox(self):
         for item in self.scene.selectedItems():
             self.scene.removeItem(item)
+
+    def connectSelectedBoxes(self, scene):
+        selectedItems = scene.selectedItems()
+        if len(selectedItems) == 2:  # Ensure exactly two items are selected
+            arrow = ArrowItem(selectedItems[0], selectedItems[1])
+            scene.addItem(arrow)
 
     def save_canvas(self, scene, filename):
         items_data = []
