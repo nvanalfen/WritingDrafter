@@ -1,0 +1,18 @@
+[
+    {
+        "type": "DraggableTextItem",
+        "text": "Additional\n\nStuff\n\nLet's see\n\nHow well this works",
+        "x": 52.0,
+        "y": 53.0,
+        "width": 260.28125,
+        "height": 157.0
+    },
+    {
+        "type": "DraggableTextItem",
+        "text": "Text stuff",
+        "x": 435.0,
+        "y": 73.0,
+        "width": 140.28125,
+        "height": 85.0
+    }
+]
