@@ -1,4 +1,5 @@
 import sys
+import json
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QTabWidget, \
                             QWidget, QVBoxLayout, QPushButton, QGraphicsView, \
                             QGraphicsScene, QGraphicsItem, QLabel, QInputDialog, \
@@ -21,12 +22,6 @@ class DraggableTextItem(QGraphicsRectItem):
     def __init__(self, parent=None):
         super(DraggableTextItem, self).__init__(parent)
         self.setFlags(QGraphicsItem.ItemIsSelectable | QGraphicsItem.ItemIsMovable)
-
-        # Create a background rect item as a child of this item
-        #self.backgroundRect = QGraphicsRectItem(self)
-        #self.backgroundRect.setBrush(QBrush(QColor(255, 255, 255, 255)))  # Opaque white background
-        #self.backgroundRect.setZValue(-1)  # Set the background behind the text
-        #self.backgroundRect.setPen(Qt.NoPen)  # No border
 
         # Create a text item as a child of the rectangle
         self.textItem = EditableTextItem("Edit me", self)
@@ -52,20 +47,12 @@ class DraggableTextItem(QGraphicsRectItem):
         resizeHandleRect = self.resizeHandle()
         painter.fillRect(resizeHandleRect, Qt.black)
         
-        #painter.setPen(QPen(Qt.black))
-        #metrics = QFontMetrics(painter.font())
-        #elidedText = metrics.elidedText(self.text, Qt.ElideRight, int(self.rect().width()) - 10)
-        #painter.drawText(self.rect().adjusted(5, 5, -5, -5), Qt.AlignLeft | Qt.AlignTop, elidedText)
-        
     def updateSceneRect(self):
         itemRect = self.mapToScene(self.boundingRect()).boundingRect()
         scene = self.scene()
         if scene:
             currentSceneRect = scene.sceneRect()
             newSceneRect = currentSceneRect.united(itemRect)  # Unite the current scene rect with the item's rect
-            
-            # Optionally, add some margin
-            #newSceneRect.adjust(-10, -10, 10, 10)
 
             if newSceneRect != currentSceneRect:
                 scene.setSceneRect(newSceneRect)
@@ -128,6 +115,7 @@ class DraggableTextItem(QGraphicsRectItem):
     def resizeHandle(self):
         size = 10
         return QRectF(self.rect().right() - size, self.rect().bottom() - size, size, size)
+    
 
 class CanvasTab(QWidget):
     def __init__(self):
@@ -143,10 +131,16 @@ class CanvasTab(QWidget):
         self.addButton.clicked.connect(self.addTextBox)
         self.deleteButton = QPushButton("Delete Selected Text Box")
         self.deleteButton.clicked.connect(self.deleteSelectedTextBox)
+        self.saveButton = QPushButton("Save Canvas")
+        self.saveButton.clicked.connect(lambda: self.save_canvas(self.scene, 'canvas.json'))
+        self.loadButton = QPushButton("Load Canvas")
+        self.loadButton.clicked.connect(lambda: self.load_canvas(self.scene, 'canvas.json'))
 
         layout.addWidget(self.addButton)
-        layout.addWidget(self.view)
         layout.addWidget(self.deleteButton)
+        layout.addWidget(self.saveButton)
+        layout.addWidget(self.loadButton)
+        layout.addWidget(self.view)
 
     def addTextBox(self):
         item = DraggableTextItem()
@@ -155,6 +149,44 @@ class CanvasTab(QWidget):
     def deleteSelectedTextBox(self):
         for item in self.scene.selectedItems():
             self.scene.removeItem(item)
+
+    def save_canvas(self, scene, filename):
+        items_data = []
+        for item in scene.items():
+            if isinstance(item, DraggableTextItem):  # Assuming DraggableTextItem is your custom class
+                item_data = {
+                    'type': 'DraggableTextItem',
+                    'text': item.textItem.toPlainText(),
+                    'x': item.pos().x(),
+                    'y': item.pos().y(),
+                    'width': item.rect().width(),
+                    'height': item.rect().height()
+                }
+                items_data.append(item_data)
+        
+        with open(filename, 'w') as outfile:
+            json.dump(items_data, outfile, indent=4)
+
+    def load_canvas(self, scene, filename):
+        # Clear the current canvas
+        scene.clear()
+        
+        with open(filename, 'r') as infile:
+            items_data = json.load(infile)
+        
+        for item_data in items_data:
+            if item_data['type'] == 'DraggableTextItem':
+                # Recreate DraggableTextItem and configure its properties
+                item = DraggableTextItem()
+                item.textItem.setPlainText(item_data['text'])
+                item.setPos(QPointF(item_data['x'], item_data['y']))
+                
+                # Ensure the text width and item size are correctly set
+                item.setRect(0, 0, item_data['width'], item_data['height'])
+                item.textItem.setTextWidth(item_data['width'])  # Adjust text width to prevent wrapping
+                
+                # Add the recreated item to the scene
+                scene.addItem(item)
 
 class MainWindow(QMainWindow):
     def __init__(self):
