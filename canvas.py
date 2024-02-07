@@ -39,6 +39,8 @@ class DraggableTextItem(QGraphicsRectItem):
         self.adjustRectSize()
     
     def paint(self, painter, option, widget=None):
+        painter.setBrush(QBrush(QColor(255, 255, 255)))  # Solid white background
+        painter.drawRect(self.rect())
         super(DraggableTextItem, self).paint(painter, option, widget)
         if self.isSelected():
             painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
