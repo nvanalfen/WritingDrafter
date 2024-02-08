@@ -134,7 +134,7 @@ class CanvasTab(QWidget):
 
         self.addButton = QPushButton("Add Text Box")
         self.addButton.clicked.connect(self.addTextBox)
-        self.deleteButton = QPushButton("Delete Selected Text Box")
+        self.deleteButton = QPushButton("Delete Selected")
         self.deleteButton.clicked.connect(self.deleteSelectedTextBox)
         self.saveButton = QPushButton("Save Canvas")
         self.saveButton.clicked.connect(lambda: self.save_canvas(self.scene, 'canvas.json'))
