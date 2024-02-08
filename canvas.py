@@ -155,6 +155,9 @@ class CanvasTab(QWidget):
 
         self.setLayout(self.layout)
 
+        self.selectionOrder = []
+        self.scene.selectionChanged.connect(self.updateSelectionOrder)
+
     def addTextBox(self):
         item = DraggableTextItem()
         self.scene.addItem(item)
@@ -164,10 +167,28 @@ class CanvasTab(QWidget):
             self.scene.removeItem(item)
 
     def connectSelectedBoxes(self, scene):
-        selectedItems = scene.selectedItems()
-        if len(selectedItems) == 2:  # Ensure exactly two items are selected
-            arrow = ArrowItem(selectedItems[0], selectedItems[1])
-            scene.addItem(arrow)
+        if len(self.selectionOrder) >= 2:
+            # Get the last two selected items
+            startItem = self.selectionOrder[-2]
+            endItem = self.selectionOrder[-1]
+            
+            # Create and add the arrow item
+            arrow = ArrowItem(startItem, endItem)
+            self.scene.addItem(arrow)
+
+    def updateSelectionOrder(self):
+        # This method is called whenever the selection changes in the scene
+        currentSelection = self.scene.selectedItems()
+        
+        # Add newly selected items to the selectionOrder list
+        for item in currentSelection:
+            if item not in self.selectionOrder:
+                self.selectionOrder.append(item)
+        
+        # Remove deselected items from the selectionOrder list
+        self.selectionOrder = [item for item in self.selectionOrder if item in currentSelection]
+        
+        # Now, self.selectionOrder maintains items in the order they were selected
 
     def save_canvas(self, scene, filename):
         items_data = []

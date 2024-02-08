@@ -1,0 +1,27 @@
+Features:
+- Tabs for:
+	- Welcome/Intro
+	- Outline canvas
+	- Entity panel (characters, concepts, countries, etc.)
+	- Metrics
+	
+- Intro
+	- Link to project
+	- Links to related files/documents
+- Canvas:
+	- Connecting arrows
+		- Arrow in middle of line
+		- Colorable? (likely not)
+		- Deletable
+		- Vanishes when one of its boxes vanishes
+	- Buttons to expand canvas area?
+	- Font size button
+	- Zoom in and out features?
+- Entity panel
+	- Various fields
+		- Larger text boxes
+		- Single line text entries
+		- Numerical entries?
+	- Images?
+- Metrics
+	- Integrate my existing word counts and metrics
